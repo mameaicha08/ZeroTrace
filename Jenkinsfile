@@ -17,10 +17,10 @@ pipeline {
 
         stage('Setup Environnement') {
             steps {
-                sh '''
-                    pip3 install --upgrade pip
-                    pip3 install -r requirements.txt
-                    pip3 install bandit safety flake8
+                bat '''
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                    pip install bandit safety flake8
                 '''
             }
             post {
@@ -38,13 +38,13 @@ pipeline {
 
         stage('Build - Verification syntaxe') {
             steps {
-                sh '''
-                    python3 -m py_compile main.py
-                    python3 -m py_compile crypto_utils.py
-                    python3 -m py_compile signalement.py
-                    python3 -m py_compile auditeur.py
-                    python3 -m py_compile audit.py
-                    echo "Syntaxe OK"
+                bat '''
+                    python -m py_compile main.py
+                    python -m py_compile crypto_utils.py
+                    python -m py_compile signalement.py
+                    python -m py_compile auditeur.py
+                    python -m py_compile audit.py
+                    echo Syntaxe OK
                 '''
             }
             post {
@@ -62,26 +62,21 @@ pipeline {
 
         stage('Lint - Flake8') {
             steps {
-                sh '''
-                    mkdir -p reports
-                    flake8 . --max-line-length=120 \
-                             --exclude=__pycache__,.git \
-                             --output-file=reports/flake8-report.txt \
-                             || true
-                    cat reports/flake8-report.txt || echo "Aucune erreur"
+                bat '''
+                    if not exist reports mkdir reports
+                    flake8 . --max-line-length=120 --exclude=__pycache__,.git --output-file=reports/flake8-report.txt || exit /b 0
+                    type reports\\flake8-report.txt
                 '''
             }
         }
 
         stage('SAST - Bandit') {
             steps {
-                sh '''
-                    mkdir -p reports
-                    bandit -r . --exclude ./.git,__pycache__ \
-                           -f html -o reports/bandit-report.html -ll || true
-                    bandit -r . --exclude ./.git,__pycache__ \
-                           -f txt  -o reports/bandit-report.txt  -ll || true
-                    cat reports/bandit-report.txt || true
+                bat '''
+                    if not exist reports mkdir reports
+                    bandit -r . --exclude ./.git,__pycache__ -f html -o reports/bandit-report.html -ll || exit /b 0
+                    bandit -r . --exclude ./.git,__pycache__ -f txt  -o reports/bandit-report.txt  -ll || exit /b 0
+                    type reports\\bandit-report.txt || exit /b 0
                 '''
             }
             post {
@@ -100,12 +95,10 @@ pipeline {
 
         stage('SCA - Safety') {
             steps {
-                sh '''
-                    mkdir -p reports
-                    safety check --file=requirements.txt \
-                                 --output text \
-                                 > reports/safety-report.txt || true
-                    cat reports/safety-report.txt || true
+                bat '''
+                    if not exist reports mkdir reports
+                    safety check --file=requirements.txt --output text > reports/safety-report.txt || exit /b 0
+                    type reports\\safety-report.txt || exit /b 0
                 '''
             }
             post {
