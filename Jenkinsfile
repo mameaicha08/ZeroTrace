@@ -4,8 +4,6 @@ pipeline {
     environment {
         PROJECT_NAME   = "ZeroTrace"
         RECIPIENT_MAIL = "mameaicha185@gmail.com"
-        PYTHON         = "python3"
-        PIP            = "pip3"
     }
 
     stages {
@@ -38,7 +36,7 @@ pipeline {
             }
         }
 
-        stage('Build - Vérification syntaxe') {
+        stage('Build - Verification syntaxe') {
             steps {
                 sh '''
                     python3 -m py_compile main.py
@@ -46,7 +44,7 @@ pipeline {
                     python3 -m py_compile signalement.py
                     python3 -m py_compile auditeur.py
                     python3 -m py_compile audit.py
-                    echo "✅ Syntaxe OK"
+                    echo "Syntaxe OK"
                 '''
             }
             post {
@@ -128,16 +126,16 @@ pipeline {
     post {
         success {
             emailext(
-                subject: "✅ [ZeroTrace] Pipeline RÉUSSI - Build #${BUILD_NUMBER}",
+                subject: "✅ [ZeroTrace] Pipeline REUSSI - Build #${BUILD_NUMBER}",
                 body: """
                 <html><body>
-                <h2 style="color:green;">✅ Pipeline ZeroTrace — Succès</h2>
+                <h2 style="color:green;">Pipeline ZeroTrace - Succes</h2>
                 <table border="1" cellpadding="8">
                   <tr><td><b>Projet</b></td><td>${PROJECT_NAME}</td></tr>
-                  <tr><td><b>Build #</b></td><td>${BUILD_NUMBER}</td></tr>
-                  <tr><td><b>Durée</b></td><td>${currentBuild.durationString}</td></tr>
+                  <tr><td><b>Build</b></td><td>#${BUILD_NUMBER}</td></tr>
+                  <tr><td><b>Duree</b></td><td>${currentBuild.durationString}</td></tr>
                 </table>
-                <h3>📊 Rapports :</h3>
+                <h3>Rapports :</h3>
                 <ul>
                   <li><a href="${BUILD_URL}Rapport_SAST_-_Bandit">Rapport SAST Bandit</a></li>
                   <li><a href="${BUILD_URL}Rapport_SCA_-_Safety">Rapport SCA Safety</a></li>
@@ -153,15 +151,15 @@ pipeline {
 
         failure {
             emailext(
-                subject: "❌ [ZeroTrace] Pipeline ÉCHOUÉ - Build #${BUILD_NUMBER}",
+                subject: "❌ [ZeroTrace] Pipeline ECHOUE - Build #${BUILD_NUMBER}",
                 body: """
                 <html><body>
-                <h2 style="color:red;">❌ Pipeline ZeroTrace — Échec</h2>
+                <h2 style="color:red;">Pipeline ZeroTrace - Echec</h2>
                 <table border="1" cellpadding="8">
-                  <tr><td><b>Build #</b></td><td>${BUILD_NUMBER}</td></tr>
+                  <tr><td><b>Build</b></td><td>#${BUILD_NUMBER}</td></tr>
                   <tr><td><b>Statut</b></td><td style="color:red;">FAILED</td></tr>
                 </table>
-                <p><a href="${BUILD_URL}console"><b>👉 Voir les logs complets</b></a></p>
+                <p><a href="${BUILD_URL}console">Voir les logs complets</a></p>
                 </body></html>
                 """,
                 mimeType: 'text/html',
@@ -172,10 +170,10 @@ pipeline {
 
         unstable {
             emailext(
-                subject: "⚠️ [ZeroTrace] Vulnérabilités détectées - Build #${BUILD_NUMBER}",
+                subject: "⚠️ [ZeroTrace] Vulnerabilites detectees - Build #${BUILD_NUMBER}",
                 body: """
                 <html><body>
-                <h2 style="color:orange;">⚠️ Vulnérabilités de sécurité détectées</h2>
+                <h2 style="color:orange;">Vulnerabilites de securite detectees</h2>
                 <ul>
                   <li><a href="${BUILD_URL}Rapport_SAST_-_Bandit">Rapport SAST Bandit</a></li>
                   <li><a href="${BUILD_URL}Rapport_SCA_-_Safety">Rapport SCA Safety</a></li>
